@@ -1,4 +1,4 @@
-function [M1,M2] = spectrum (x,y)
+function [maxi, maxo, freqi, freqo] = spectrum (x,y)
 
 %input
 N=length(x);
@@ -13,9 +13,8 @@ M=length(K);
 K=K(4:M);
 f=f(4:M);
 maxi = max(K);
-stem(f,K) 
+% stem(f,K); 
 
-hold on;
 
 %output
 N1=length(y);
@@ -30,26 +29,27 @@ K1=K1(4:M);
 M2=length(K1);
 f1=f1(4:M);
 maxo = max(K1);
-disp(maxo);
+freqo=0;
+% disp(maxo);
 
 %to find the magnitude of dominant frequency
  for k=4:length(K)
      k;
      if(K(k)==maxi)
          freqi = f(k);
-         disp('entered');
+        % disp('entered');
      end
      
      if(K1(k)==maxo)
          freqo= f1(k);
-         disp('I was here');
+         %disp('I was here');
      end
  end
 %Plot single-sided amplitude spectrum.
-stem(f1,K1 , 'r') 
-title('Single-Sided Amplitude Spectrum of y(t)')
-xlabel('Frequency (Hz)')
-ylabel('|Y(f)|')
-legend('input', 'output')
-xlim([0.06 1.5])
+% stem(f1,K1 , 'r') 
+% title('Single-Sided Amplitude Spectrum of y(t)')
+% xlabel('Frequency (Hz)')
+% ylabel('|Y(f)|')
+% legend('input', 'output')
+% xlim([0.06 1.5])
 end
