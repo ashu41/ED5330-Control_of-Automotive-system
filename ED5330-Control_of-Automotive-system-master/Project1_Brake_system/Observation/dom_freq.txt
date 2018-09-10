@@ -1,6 +1,6 @@
-F=0.1: In_dominant_freq = 2.7176, Out_dominant_freq = 0.19836
-F=0.2: In_dominant_freq = 0.19836, Out_dominant_freq = 0.19836
-F=0.3: In_dominant_freq = 0.30518, Out_dominant_freq = 0.19836
-F=0.4: In_dominant_freq = 0.39673, Out_dominant_freq = 0.19836
+F=0.1: In_dominant_freq = 0.0763, Out_dominant_freq = 0.10681
+F=0.2: In_dominant_freq = 0.0763, Out_dominant_freq = 0.19836
+F=0.3: In_dominant_freq = 0.0763, Out_dominant_freq = 0.30518
+F=0.4: In_dominant_freq = 0.0763, Out_dominant_freq = 0.39673
 F=0.5: In_dominant_freq = 0.0763, Out_dominant_freq = 0.39673
 F=0.6: In_dominant_freq = 0.0763, Out_dominant_freq = 0.39673
