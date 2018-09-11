@@ -82,18 +82,24 @@ gain = mean(ss_gain);
 
 %% time constant using simulated step response
 s = tf('s');
-h=5;
 
-step_in = stepDataOptions('InputOffset',0,'StepAmplitude',h);
-time = eval(sprintf('step_res.step_%d(:,1)', h));
-press = eval(sprintf('step_res.step_%d(:,3)', h));
-
-for tau_d = min(tau)%:0.002:max(tau)
-    MEAP=0;
-    sys = gain*(2-Td*s)/((1+tau_d*s)*(2+Td*s));
-    sim_step_res = step(sys,[0:0.002:12],step_in);
-    for t = time:0.002:12
-        MEAP = MEAP+(sim_step_res(Td_index(1))-step_res.step_5(Td_index(1),3))/step_res.step_5(Td_index(1),3);
+MEAP = [];
+    i = 1;
+for tau_d = min(tau):0.0004:max(tau)
+    
+    for h=5:8
+        step_in = stepDataOptions('InputOffset',0,'StepAmplitude',h);
+        time = eval(sprintf('step_res.step_%d(:,1)', h));
+        press = eval(sprintf('step_res.step_%d(:,3)', h));
+        sys = gain*(2-Td*s)/((1+tau_d*s)*(2+Td*s));
+        
+        sim_step_res = step(sys,0:0.002:7,step_in);
+        num=sim_step_res(Td_index(1):end)- press(Td_index(1):length(sim_step_res));
+        den = press(Td_index(1):length(sim_step_res));
+        avg = mean(abs(num./den)*100);
+        MEAP(i,h-4)= avg;
     end
-    MEAP = MEAP
+    i = i+1;
 end
+
+=mean(MEAP

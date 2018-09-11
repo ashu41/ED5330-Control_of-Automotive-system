@@ -1,6 +1,5 @@
 %% Finding max of input and output dominant frequency
 freq_res = load('frequency_response_data_final.mat');
-step_res = load('step_response_data_final.mat');
 
 out_mat = zeros([12 4]);
 %plotting freq reaponse to test LTI system
@@ -82,19 +81,29 @@ gain = mean(ss_gain);
 
 %% time constant using simulated step response
 s = tf('s');
-h=5;
-c=1;
-step_in = stepDataOptions('InputOffset',0,'StepAmplitude',h);
-time = eval(sprintf('step_res.step_%d(:,1)', h));
-press = eval(sprintf('step_res.step_%d(:,3)', h));
 
-for tau_d = min(tau)%:0.002:max(tau)
-    sum=0;
-    sys = gain*(2-Td*s)/((1+tau_d*s)*(2+Td*s));
-    sim_step_res = step(sys,[0:0.002:12],step_in);
-    for t = time(Td_index(h-4))-10.5:0.002:12
-        sum = sum+(sim_step_res(Td_index(1))-press(Td_index(1)))/press(Td_index(1));
+MEAP = [];
+MEAP_tau = [];
+    i = 1;
+for tau_d = min(tau):0.004:max(tau)
+    
+    for h=5:8
+        step_in = stepDataOptions('InputOffset',0,'StepAmplitude',h);
+        time = eval(sprintf('step_res.step_%d(:,1)', h));
+        press = eval(sprintf('step_res.step_%d(:,3)', h));
+        sys = gain*(2-Td*s)/((1+tau_d*s)*(2+Td*s));
+        
+        sim_step_res = step(sys,0:0.002:7,step_in);
+        num=sim_step_res(Td_index(1):end)- press(Td_index(1):length(sim_step_res));
+        den = press(Td_index(1):length(sim_step_res));
+        avg = mean(abs(num./den)*100);
+        MEAP(i,h-4)= avg;
     end
-    MEAP(c) = sum*100/length(t);
-    c=c+1;
+    MEAP_tau(i)=mean(MEAP(i,:));
+    i = i+1;
+ 
 end
+
+[MEAP_min,index] = min(MEAP_tau);
+
+tau_final = min(tau)+index*0.004;
