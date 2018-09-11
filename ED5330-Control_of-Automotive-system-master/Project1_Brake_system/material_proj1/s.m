@@ -54,13 +54,10 @@ disp(slope_l2);
 step_res = load('step_response_data_final.mat');
 
 for i=5:8
-    voltage = sprintf('step_res.step_%d(:,2)', i);
-    time = sprintf('step_res.step_%d(:,1)', i);
-    pressure = sprintf('step_res.step_%d(:,3)', i);
+    voltage = eval(sprintf('step_res.step_%d(:,2)', i));
+    time = eval(sprintf('step_res.step_%d(:,1)', i));
+    press = eval(sprintf('step_res.step_%d(:,3)', i));
     
-    time = step_res.step_5(:,1);
-    voltage = step_res.step_5(:,2);
-    press = step_res.step_5(:,3);
     figure(2);
     plot(time,voltage,'b');
     hold on;
@@ -68,15 +65,36 @@ for i=5:8
     plot(time,press,'--g');
 
     %calculating time delay
-    [c,index] = min(abs(0.05-press));
-    time_delay=time(index);
+    [c,Td_index(i-4)] = min(abs(0.05-press));
+    t_delay(i-4) = time(Td_index(i-4))-time(1);
 
     %calculating steady state gain
-    ss_gain = mean(press(2000:7000))/mean(voltage(2000:7000));
+    ss_gain(i-4) = mean(press(2000:7000))/mean(voltage(2000:7000));
     % disp(ss_gain);
 
     %finding time constant
     [c,index] = min(abs(0.6325-press));
     % disp(press(index));
-    tau = time(index)-time_delay;
+    tau(i-4) = time(index)-t_delay(i-4)-time(1);
+end
+Td = mean(t_delay);
+gain = mean(ss_gain);
+
+%% time constant using simulated step response
+s = tf('s');
+h=5;
+c=1;
+step_in = stepDataOptions('InputOffset',0,'StepAmplitude',h);
+time = eval(sprintf('step_res.step_%d(:,1)', h));
+press = eval(sprintf('step_res.step_%d(:,3)', h));
+
+for tau_d = min(tau)%:0.002:max(tau)
+    sum=0;
+    sys = gain*(2-Td*s)/((1+tau_d*s)*(2+Td*s));
+    sim_step_res = step(sys,[0:0.002:12],step_in);
+    for t = time(Td_index(h-4))-10.5:0.002:12
+        sum = sum+(sim_step_res(Td_index(1))-press(Td_index(1)))/press(Td_index(1));
+    end
+    MEAP(c) = sum*100/length(t);
+    c=c+1;
 end
