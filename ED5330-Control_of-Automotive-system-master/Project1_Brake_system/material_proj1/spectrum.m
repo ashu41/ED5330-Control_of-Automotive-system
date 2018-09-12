@@ -13,7 +13,8 @@ M=length(K);
 K=K(4:M);
 f=f(4:M);
 maxi = max(K);
-% stem(f,K); 
+stem(f,K);
+hold on;
 
 
 %output
@@ -46,10 +47,10 @@ freqo=0;
      end
  end
 %Plot single-sided amplitude spectrum.
-% stem(f1,K1 , 'r') 
-% title('Single-Sided Amplitude Spectrum of y(t)')
-% xlabel('Frequency (Hz)')
-% ylabel('|Y(f)|')
-% legend('input', 'output')
-% xlim([0.06 1.5])
+stem(f1,K1 , 'r') 
+title('Single-Sided Amplitude Spectrum of y(t)')
+xlabel('Frequency (Hz)')
+ylabel('|Y(f)|')
+legend('input', 'output')
+xlim([0.06 1.5])
 end

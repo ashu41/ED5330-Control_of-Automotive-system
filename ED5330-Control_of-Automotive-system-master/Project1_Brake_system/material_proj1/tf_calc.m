@@ -19,7 +19,7 @@ for i=1:12
     out_mat(i,3) = freqi;
     out_mat(i,4) = freqo;
     out_mat(i,5) = -20*log10(maxi/maxo);  %gain
-    
+%     csvwrite('dom_freq_mat.csv',out_mat);
 end
 out_mat(10,:)=[]; 
 
@@ -28,7 +28,7 @@ out_mat(10,:)=[];
 x = log10(out_mat(:,3));
 y = out_mat(:,5);
 
-semilogx(x,y,'g');
+plot(x,y,'g');
 hold on;
 grid on;
 
@@ -36,7 +36,7 @@ grid on;
 linearCoefficients = polyfit(x(1:3), y(1:3), 1);
 xFit = linspace(x(1), x(3), 500);
 yFit = polyval(linearCoefficients, xFit);
-semilogx(xFit, yFit, 'b', 'LineWidth', 1);
+plot(xFit, yFit, 'b', 'LineWidth', 1);
 hold on;
 slope_l1= (yFit(3)-yFit(1))/(xFit(3)-xFit(1));
 disp(slope_l1);
@@ -44,7 +44,7 @@ disp(slope_l1);
 linearCoefficients = polyfit(x(4:11), y(4:11), 1);
 xFit = linspace(x(4), x(11), 500);
 yFit = polyval(linearCoefficients, xFit);
-semilogx(xFit, yFit, 'b', 'LineWidth', 1);
+plot(xFit, yFit, 'b', 'LineWidth', 1);
 legend('Bode Plot', 'Fit line', 'Location', 'Northeast');
 slope_l2= (yFit(11)-yFit(4))/(xFit(11)-xFit(4));
 disp(slope_l2);
@@ -58,11 +58,11 @@ for i=5:8
     press = eval(sprintf('step_res.step_%d(:,3)', i));
     
     figure(2);
-    plot(time,voltage,'b');
+    plot(time,voltage,'--b');
     hold on;
     grid on;
-    plot(time,press,'--g');
-
+    plot(time,press,'g');
+    hold off;
     %calculating time delay
     [c,Td_index(i-4)] = min(abs(0.05-press));
     t_delay(i-4) = time(Td_index(i-4))-time(1);
@@ -82,10 +82,10 @@ gain = mean(ss_gain);
 %% time constant using simulated step response
 s = tf('s');
 
-MEAP = [];
-MEAP_tau = [];
+MAPE = [];
+MAPE_tau = [];
 i = 1;
-for tau_d = min(tau):0.0004:max(tau)
+for tau_d = min(tau):0.02:max(tau)
     
     for h=5:8
         step_in = stepDataOptions('InputOffset',0,'StepAmplitude',h);
@@ -96,14 +96,14 @@ for tau_d = min(tau):0.0004:max(tau)
         sim_step_res = step(sys,0:0.002:7,step_in);
         num=sim_step_res(Td_index(h-4):end)- press(Td_index(h-4):length(sim_step_res));
         den = press(Td_index(h-4):length(sim_step_res));
-        MEAP(i,h-4) = mean(abs(num./den))*100;
+        MAPE(i,h-4) = mean(abs(num./den))*100;
        
     end
-    MEAP_tau(i)=mean(MEAP(i,:));
+    MAPE_tau(i)=mean(MAPE(i,:));
     i = i+1;
  
 end
 
-[MEAP_min,index] = min(MEAP_tau);
+[MAPE_min,index] = min(MAPE_tau);
 
 tau_final = min(tau)+(index-1)*0.0004;
