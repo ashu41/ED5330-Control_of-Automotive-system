@@ -1,0 +1,10 @@
+% proportional controller controller
+s=tf('s');
+K=0.9001; Td=0.0530; tau=0.4480;
+P_s =  K *(2 - Td * s) / ((1 + (tau * s)) * (2 + Td * s));
+
+syms K_p;
+I=0; D=0; %tweak this for P, PI,PD or PID
+C_s = K_p(1+I/(tau*s)+(D*Beta*s));
+
+Open_loop = P_s*C_s;
