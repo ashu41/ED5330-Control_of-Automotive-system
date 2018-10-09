@@ -30,3 +30,15 @@ root_locus_plot(open_loop);
         plot(0:0.002:7,sim_step_res,'g'); hold on;
         plot(0:0.002:7,step_in,'--b');hold on;
  end
+
+%% plotting system final response
+K_p = 6.15; K_i=14.0625; K_d=0;
+C_s = K_p+K_i/s+K_d*s;
+
+closed_loop = P_s*C_s/(1+P_s*C_s); 
+
+step_in = stepDataOptions('InputOffset',0,'StepAmplitude',5);
+sim_step_res = step(closed_loop,0:0.002:7,step_in);
+
+plot(0:0.002:7,sim_step_res,'g','LineWidth', 1.5); hold on;
+plot(0:0.002:7,step_in,'--b');hold on;

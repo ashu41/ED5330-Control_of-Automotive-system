@@ -85,7 +85,7 @@ s = tf('s');
 MAPE = [];
 MAPE_tau = [];
 i = 1;
-for tau_d = min(tau):0.02:max(tau)
+for tau_d = min(tau):0.004:max(tau)
     
     for h=5:8
         step_in = stepDataOptions('InputOffset',0,'StepAmplitude',h);
@@ -93,7 +93,7 @@ for tau_d = min(tau):0.02:max(tau)
         press = eval(sprintf('step_res.step_%d(:,3)', h));
         sys = gain*(2-Td*s)/((1+tau_d*s)*(2+Td*s));
         
-        sim_step_res = step(sys,0:0.002:7,step_in);
+        sim_step_res = step(sys,0:0.002:3,step_in);
         num=sim_step_res(Td_index(h-4):end)- press(Td_index(h-4):length(sim_step_res));
         den = press(Td_index(h-4):length(sim_step_res));
         MAPE(i,h-4) = mean(abs(num./den))*100;
