@@ -34,6 +34,7 @@ R = diag([rho(5:6)]);
 
 %% Finding tf for sprung and unsprung mass
 A_cl = A-B*K;
+s=tf('s');
 
 L_X = inv(s*eye(4)-A)*l;
 L_X_cl = inv(s*eye(4)-A_cl)*l;
@@ -47,8 +48,50 @@ tfu_cl = L_X_cl(3);
 %% Input Simulation
 tsim = (0:0.01:10);
 
-impulse = 5*(tsim==0);
-step = 5*heaviside(tsim-5);
+impulse = 9.81*((tsim-3)==0);
+step = 9.81*(heaviside(tsim-2)-heaviside(tsim-5));
 
-imp_res = lsim(closed_loop,impulse,tsim);
-step_res = lsim(closed_loop,step,tsim);
+figure(1);
+subplot(1,2,1);
+plot(tsim,impulse);
+title('Impulse of magnitude 1g');
+subplot(1,2,2);
+plot(tsim,step);
+title('Step of magnitude 1g');
+% 
+% imp_res = lsim(tfs,impulse,tsim);
+% imp_res_cl = lsim(tfs_cl,impulse,tsim);
+% imp_resu = lsim(tfu,impulse,tsim);
+% imp_resu_cl = lsim(tfu_cl,impulse,tsim);
+% 
+% 
+% step_res = lsim(tfs,step,tsim);
+% step_res_cl = lsim(tfs_cl,step,tsim);
+% step_resu = lsim(tfu,step,tsim);
+% step_resu_cl = lsim(tfu_cl,step,tsim);
+% 
+% 
+% figure(1);
+% plot(tsim,imp_resu,tsim,imp_resu_cl);
+% title('Impulse input response for unsprung mass');
+% legend('Passive suspension','Active suspension');
+% saveas(gcf,'plots/roll_imp_unsprung.png');
+% 
+% figure(2);
+% plot(tsim,imp_res,tsim,imp_res_cl);
+% title('Impulse input response for sprung mass')
+% legend('Passive suspension','Active suspension');
+% saveas(gcf,'plots/roll_imp_sprung.png');
+% 
+% figure(3);
+% plot(tsim,step_res,tsim,step_res_cl);
+% title('Rectangular input response for sprung mass');
+% legend('Passive suspension','Active suspension');
+% saveas(gcf,'plots/roll_rect_sprung.png');
+% 
+% figure(4);
+% plot(tsim,step_resu,tsim,step_resu_cl);
+% title('Rectangular input response for unsprung mass');
+% legend('Passive suspension','Active suspension');
+% saveas(gcf,'plots/roll_rect_unsprung.png');
+% 

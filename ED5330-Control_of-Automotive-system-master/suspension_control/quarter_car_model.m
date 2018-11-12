@@ -54,6 +54,7 @@ legend('Acceleration tf','Rattle space tf','Tyre deflection tf');
 saveas(gcf,'plots/Part2b_bode.png');
 %% bode plot part 2c,d,e
 figure(1);
+subplot
 bode(tf_a, tf_a_2, tf_a_3, w1_range);
 title('Effect of suspension damping on Acceleration')
 legend('bs=900','bs=600','bs=1200');
@@ -74,8 +75,8 @@ saveas(gcf,'plots/Part2d_bode_tyre.png');
 %% LQR controller derivation and tuning
 
 %rho = [0.2 0.1 0.2 0.1];
- rho = [20000 100 20000 100];
-% rho = [200 10 200 10];
+% rho = [20000 100 20000 100];
+rho = [200 10 200 10];
 
 Q = [rho(1)+(ks/Ms)^2  bs*ks/Ms^2    0   -bs*ks/Ms^2;
      bs*ks/Ms^2     rho(2)+(bs/Ms)^2 0   -(bs/Ms)^2;
