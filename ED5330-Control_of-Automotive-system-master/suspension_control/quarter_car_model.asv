@@ -1,10 +1,10 @@
 %% Writing Quater car model equations and finding transfern functions
-clear all
-% initialising variables
+% clear all
+% 
 Ms=300; Mu=50; 
 ks=15000;
 kt=150000; 
-bs =600;
+bs =900;
 s = tf('s');
 
 %to be usedo only once for getting tf for report
@@ -19,17 +19,17 @@ l = [0;0;-1;0];
 
 L_X = inv(s*eye(4)-A)*l;
 
-tf_a = s*L_X(2);
-tf_r = L_X(1);
-tf_t = L_X(3);
-
+% tf_a = s*L_X(2);
+% tf_r = L_X(1);
+% tf_t = L_X(3);
+% 
 % tf_a_2 = s*L_X(2);
 % tf_r_2 = L_X(1);
 % tf_t_2 = L_X(3);
-% 
-% tf_a_3 = s*L_X(2);
-% tf_r_3 = L_X(1);
-% tf_t_3 = L_X(3);
+ 
+tf_a_3 = s*L_X(2);
+tf_r_3 = L_X(1);
+tf_t_3 = L_X(3);
 
 %% Finding natural frequencies
 
@@ -90,9 +90,9 @@ legend('bs=900','bs=600','bs=1200');
 
 %% LQR controller derivation and tuning
 
-%  rho = [0.2 0.1 0.2 0.1];
-rho = [20000 100 20000 100];
-%rho = [200 10 200 10];
+% rho = [0.2 0.1 0.2 0.1];
+% rho = [20000 100 20000 100];
+rho = [200 10 200 10];
 
 Q = [rho(1)+(ks/Ms)^2  bs*ks/Ms^2    0   -bs*ks/Ms^2;
      bs*ks/Ms^2     rho(2)+(bs/Ms)^2 0   -(bs/Ms)^2;
@@ -118,9 +118,6 @@ bode(tf_a, tf_a_cl);grid on;
 title('Bode plot for Acceleration transfer function'); 
 legend('open loop','closed loop');
 % saveas(gcf,'plots/Part3biii_bode_acc.png');
-[Gm(1,1),Pm(1,1),Wcg(1,1),Wcp(1,1)] = margin(tf_a);
-[Gm(1,2),Pm(1,2),Wcg(1,2),Wcp(1,2)] = margin(tf_a_cl);
-
 
 subplot(1,3,2);
 bode(tf_r, tf_r_cl);grid on;
@@ -128,7 +125,7 @@ title('Bode plot for Rattle Space transfer function');
 legend('open loop','closed loop');
 % saveas(gcf,'plots/Part3biii_bode_rattle.png');
 [Gm(2,1),Pm(2,1),Wcg(2,1),Wcp(2,1)] = margin(tf_r);
-[Gm(2,2),Pm(2,2),Wcg(2,2),Wcp(2,2)] = margin(tf_r_cl);
+[Gm(2,2),Pm(2,2),Wcg(2,2),Wcp(2,2)] = margin(tf_r_2);
 
 
 subplot(1,3,3);

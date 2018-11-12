@@ -46,7 +46,7 @@ tfs_cl = L_X_cl(1);
 tfu_cl = L_X_cl(3);
 
 %% Input Simulation
-tsim = (0:0.01:10);
+tsim = (0:0.01:20);
 
 impulse = 9.81*((tsim-3)==0);
 step = 9.81*(heaviside(tsim-2)-heaviside(tsim-5));
