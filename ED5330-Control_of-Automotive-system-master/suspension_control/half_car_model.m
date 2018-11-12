@@ -72,26 +72,53 @@ step_resu_cl = lsim(tfu_cl,step,tsim);
 
 
 figure(1);
+subplot(1,2,1);
 plot(tsim,imp_resu,tsim,imp_resu_cl);
 title('Impulse input response for unsprung mass');
 legend('Passive suspension','Active suspension');
 saveas(gcf,'plots/roll_imp_unsprung.png');
 
-figure(2);
+subplot(1,2,2);
 plot(tsim,imp_res,tsim,imp_res_cl);
 title('Impulse input response for sprung mass')
 legend('Passive suspension','Active suspension');
-saveas(gcf,'plots/roll_imp_sprung.png');
+% saveas(gcf,'plots/roll_imp_sprung.png');
 
 figure(3);
+subplot(1,2,1);
 plot(tsim,step_res,tsim,step_res_cl);
 title('Rectangular input response for sprung mass');
 legend('Passive suspension','Active suspension');
-saveas(gcf,'plots/roll_rect_sprung.png');
+% saveas(gcf,'plots/roll_rect_sprung.png');
 
-figure(4);
+subplot(1,2,2);
 plot(tsim,step_resu,tsim,step_resu_cl);
 title('Rectangular input response for unsprung mass');
 legend('Passive suspension','Active suspension');
-saveas(gcf,'plots/roll_rect_unsprung.png');
+% saveas(gcf,'plots/roll_rect_unsprung.png');
 
+%%
+sinus1 = 9.81*sin(tsim);
+sinus2 = 9.81*sin(2*tsim);
+
+% plot(tsim,sinus);
+sin_res = lsim(tfs,sinus1,tsim);
+sin_res_cl = lsim(tfs_cl,sinus1,tsim);
+sin_resu = lsim(tfu,sinus1,tsim);
+sin_resu_cl = lsim(tfu_cl,sinus1,tsim);
+
+sin2_res = lsim(tfs,sinus2,tsim);
+sin2_res_cl = lsim(tfs_cl,sinus2,tsim);
+sin2_resu = lsim(tfu,sinus2,tsim);
+sin2_resu_cl = lsim(tfu_cl,sinus2,tsim);
+
+figure(2);
+subplot(2,1,1);
+plot(tsim,sin_res,tsim,sin_res_cl,tsim,sin2_res,tsim,sin2_res_cl);
+title('Sinusoidal input response for sprung mass');
+legend('Passive suspension for 1 hz','Active suspension 1 hz','Passive suspension for 0.5 hz','Active suspension 0.5 hz');
+
+subplot(2,1,2);
+plot(tsim,sin_resu,tsim,sin_resu_cl,tsim,sin2_resu,tsim,sin2_resu_cl);
+title('Sinusoidal input response for unsprung mass');
+legend('Passive suspension for 1 hz','Active suspension 1 hz','Passive suspension for 0.5 hz','Active suspension 0.5 hz');

@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>quarter_car_model</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-11-12"><meta name="DC.source" content="quarter_car_model.m"><style type="text/css">
+      --><title>quarter_car_model</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-11-13"><meta name="DC.source" content="quarter_car_model.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,14 +66,16 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Writing Quater car model equations and finding transfern functions</a></li><li><a href="#2">Finding natural frequencies</a></li><li><a href="#3">Bode plot part 2b</a></li><li><a href="#4">bode plot part 2c,d,e</a></li><li><a href="#5">LQR controller derivation and tuning</a></li><li><a href="#6">finding closed loop tf</a></li></ul></div><h2>Writing Quater car model equations and finding transfern functions<a name="1"></a></h2><p>clear all</p><pre class="codeinput">Ms=300; Mu=50;
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Writing Quater car model equations and finding transfern functions</a></li><li><a href="#2">Finding natural frequencies</a></li><li><a href="#3">Bode plot part 2b</a></li><li><a href="#4">bode plot part 2c,d,e</a></li><li><a href="#5">LQR controller derivation and tuning</a></li></ul></div><h2>Writing Quater car model equations and finding transfern functions<a name="1"></a></h2><pre class="codeinput">clear <span class="string">all</span>
+<span class="comment">% initialising variables</span>
+Ms=300; Mu=50;
 ks=15000;
 kt=150000;
-bs =900;
+bs =600;
 s = tf(<span class="string">'s'</span>);
 
 <span class="comment">%to be usedo only once for getting tf for report</span>
-<span class="comment">%syms ks Ms bs Mu kt s</span>
+<span class="comment">% syms ks Ms bs Mu kt s</span>
 
 A = [0,1,0,-1;
     -ks/Ms,-bs/Ms,0,bs/Ms;
@@ -87,14 +89,14 @@ L_X = inv(s*eye(4)-A)*l;
 tf_a = s*L_X(2);
 tf_r = L_X(1);
 tf_t = L_X(3);
-<span class="comment">%</span>
-<span class="comment">% tf_a_2 = s*L_X(2);</span>
-<span class="comment">% tf_r_2 = L_X(1);</span>
-<span class="comment">% tf_t_2 = L_X(3);</span>
-<span class="comment">%</span>
-<span class="comment">% tf_a_3 = s*L_X(2);</span>
-<span class="comment">% tf_r_3 = L_X(1);</span>
-<span class="comment">% tf_t_3 = L_X(3);</span>
+
+tf_a_2 = s*L_X(2);
+tf_r_2 = L_X(1);
+tf_t_2 = L_X(3);
+
+tf_a_3 = s*L_X(2);
+tf_r_3 = L_X(1);
+tf_t_3 = L_X(3);
 </pre><h2>Finding natural frequencies<a name="2"></a></h2><pre class="codeinput">M = [Ms 0; 0 Mu];
 K = [ks -ks;-ks ks+kt];
 P = [0 -1];
@@ -109,32 +111,49 @@ omega_n(3) = [];
 
 figure(1);
 bode(tf_a, tf_r, tf_t, w1_range);
+[Gm(1),Pm(1),Wcg(1),Wcp(1)] = margin(tf_a);
+[Gm(2),Pm(2),Wcg(2),Wcp(2)] = margin(tf_r);
+[Gm(3),Pm(3),Wcg(3),Wcp(3)] = margin(tf_t);
+
 legend(<span class="string">'Acceleration tf'</span>,<span class="string">'Rattle space tf'</span>,<span class="string">'Tyre deflection tf'</span>);
-saveas(gcf,<span class="string">'plots/Part2b_bode.png'</span>);
-</pre><img vspace="5" hspace="5" src="quarter_car_model_01.png" alt=""> <h2>bode plot part 2c,d,e<a name="4"></a></h2><pre class="codeinput">figure(1);
-bode(tf_a, tf_a_2, tf_a_3, w1_range);
-title(<span class="string">'Effect of suspension damping on Acceleration'</span>)
+<span class="comment">% saveas(gcf,'plots/Part2b_bode.png');</span>
+</pre><pre class="codeoutput">Warning: The closed-loop system is unstable. 
+</pre><h2>bode plot part 2c,d,e<a name="4"></a></h2><pre class="codeinput">figure(1);
+subplot(1,3,1);
+bode(tf_a, tf_a_2, tf_a_3);grid <span class="string">on</span>;
+title(<span class="string">'Effect of tyre stiffness on Acceleration'</span>);
 legend(<span class="string">'bs=900'</span>,<span class="string">'bs=600'</span>,<span class="string">'bs=1200'</span>);
-saveas(gcf,<span class="string">'plots/Part2d_bode_acc.png'</span>);
+<span class="comment">% saveas(gcf,'plots/Part2d_bode_acc.png');</span>
 
-figure(2);
-bode(tf_r, tf_r_2, tf_r_3, w1_range);
-title(<span class="string">'Effect of suspension damping on Rattle space'</span>)
+[Gm(1,1),Pm(1,1),Wcg(1,1),Wcp(1,1)] = margin(tf_a);
+[Gm(1,2),Pm(1,2),Wcg(1,2),Wcp(1,2)] = margin(tf_a_2);
+[Gm(1,3),Pm(1,3),Wcg(1,3),Wcp(1,3)] = margin(tf_a_3);
+
+subplot(1,3,2);
+bode(tf_r, tf_r_2, tf_r_3);grid <span class="string">on</span>;
+title(<span class="string">'Effect of tyre stiffness on Rattle space'</span>);
 legend(<span class="string">'bs=900'</span>,<span class="string">'bs=600'</span>,<span class="string">'bs=1200'</span>);
-saveas(gcf,<span class="string">'plots/Part2d_bode_rattle.png'</span>);
+<span class="comment">% saveas(gcf,'plots/Part2d_bode_rattle.png');</span>
 
-figure(3);
-bode(tf_t, tf_t_2, tf_t_3, w1_range);
-title(<span class="string">'Effect of suspension damping on Tyre deflection'</span>)
+[Gm(2,1),Pm(2,1),Wcg(2,1),Wcp(2,1)] = margin(tf_r);
+[Gm(2,2),Pm(2,2),Wcg(2,2),Wcp(2,2)] = margin(tf_r_2);
+[Gm(2,3),Pm(2,3),Wcg(2,3),Wcp(2,3)] = margin(tf_r_3);
+
+subplot(1,3,3);
+bode(tf_t, tf_t_2, tf_t_3);grid <span class="string">on</span>;
+title(<span class="string">'Effect of tyre stiffness on Tyre deflection'</span>);
 legend(<span class="string">'bs=900'</span>,<span class="string">'bs=600'</span>,<span class="string">'bs=1200'</span>);
-saveas(gcf,<span class="string">'plots/Part2d_bode_tyre.png'</span>);
-</pre><pre class="codeoutput error">Undefined function or variable 'tf_a_2'.
+<span class="comment">% saveas(gcf,'plots/Part2d_bode_tyre.png');</span>
 
-Error in quarter_car_model (line 57)
-bode(tf_a, tf_a_2, tf_a_3, w1_range);
-</pre><h2>LQR controller derivation and tuning<a name="5"></a></h2><pre class="codeinput"><span class="comment">%rho = [0.2 0.1 0.2 0.1];</span>
- rho = [20000 100 20000 100];
-<span class="comment">% rho = [200 10 200 10];</span>
+[Gm(3,1),Pm(3,1),Wcg(3,1),Wcp(3,1)] = margin(tf_t);
+[Gm(3,2),Pm(3,2),Wcg(3,2),Wcp(3,2)] = margin(tf_t_2);
+[Gm(3,3),Pm(3,3),Wcg(3,3),Wcp(3,3)] = margin(tf_t_3);
+</pre><pre class="codeoutput">Warning: The closed-loop system is unstable. 
+Warning: The closed-loop system is unstable. 
+Warning: The closed-loop system is unstable. 
+</pre><img vspace="5" hspace="5" src="quarter_car_model_01.png" alt=""> <h2>LQR controller derivation and tuning<a name="5"></a></h2><pre class="codeinput"><span class="comment">%  rho = [0.2 0.1 0.2 0.1];</span>
+rho = [20000 100 20000 100];
+<span class="comment">%rho = [200 10 200 10];</span>
 
 Q = [rho(1)+(ks/Ms)^2  bs*ks/Ms^2    0   -bs*ks/Ms^2;
      bs*ks/Ms^2     rho(2)+(bs/Ms)^2 0   -(bs/Ms)^2;
@@ -145,7 +164,9 @@ N = [ -ks/Ms^2; -bs/Ms^2; 0; bs/Ms^2];
 R = 1/Ms^2;
 
 [K,S,e] = lqr(A,B,Q,R,N);
-</pre><h2>finding closed loop tf<a name="6"></a></h2><pre class="codeinput">A_cl = A-B*K;
+
+<span class="comment">% finding closed loop tf</span>
+A_cl = A-B*K;
 L_X_cl = inv(s*eye(4)-A_cl)*l;
 
 tf_a_cl = s*L_X_cl(2);
@@ -153,35 +174,46 @@ tf_r_cl = L_X_cl(1);
 tf_t_cl = L_X_cl(3);
 
 figure(1);
-bode(tf_a, tf_a_cl);
+subplot(1,3,1);
+bode(tf_a, tf_a_cl);grid <span class="string">on</span>;
 title(<span class="string">'Bode plot for Acceleration transfer function'</span>);
 legend(<span class="string">'open loop'</span>,<span class="string">'closed loop'</span>);
-saveas(gcf,<span class="string">'plots/Part3biii_bode_acc.png'</span>);
+<span class="comment">% saveas(gcf,'plots/Part3biii_bode_acc.png');</span>
+[Gm(1,1),Pm(1,1),Wcg(1,1),Wcp(1,1)] = margin(tf_a);
+[Gm(1,2),Pm(1,2),Wcg(1,2),Wcp(1,2)] = margin(tf_a_cl);
 
-figure(2);
-bode(tf_r, tf_r_cl);
+
+subplot(1,3,2);
+bode(tf_r, tf_r_cl);grid <span class="string">on</span>;
 title(<span class="string">'Bode plot for Rattle Space transfer function'</span>);
 legend(<span class="string">'open loop'</span>,<span class="string">'closed loop'</span>);
-saveas(gcf,<span class="string">'plots/Part3biii_bode_rattle.png'</span>);
+<span class="comment">% saveas(gcf,'plots/Part3biii_bode_rattle.png');</span>
+[Gm(2,1),Pm(2,1),Wcg(2,1),Wcp(2,1)] = margin(tf_r);
+[Gm(2,2),Pm(2,2),Wcg(2,2),Wcp(2,2)] = margin(tf_r_cl);
 
-figure(3);
-bode(tf_t, tf_t_cl);
+
+subplot(1,3,3);
+bode(tf_t, tf_t_cl);grid <span class="string">on</span>;
 title(<span class="string">'Bode plot for Tyre Deflection transfer function'</span>);
 legend(<span class="string">'open loop'</span>,<span class="string">'closed loop'</span>);
-saveas(gcf,<span class="string">'plots/Part3biii_bode_tyre.png'</span>);
+<span class="comment">% saveas(gcf,'plots/Part3biii_bode_tyre.png');</span>
+
+[Gm(3,1),Pm(3,1),Wcg(3,1),Wcp(3,1)] = margin(tf_t);
+[Gm(3,2),Pm(3,2),Wcg(3,2),Wcp(3,2)] = margin(tf_t_cl);
+</pre><pre class="codeoutput">Warning: The closed-loop system is unstable. 
 </pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Writing Quater car model equations and finding transfern functions
-% clear all
-
+clear all
+% initialising variables
 Ms=300; Mu=50; 
 ks=15000;
 kt=150000; 
-bs =900;
+bs =600;
 s = tf('s');
 
 %to be usedo only once for getting tf for report
-%syms ks Ms bs Mu kt s
+% syms ks Ms bs Mu kt s
 
 A = [0,1,0,-1;
     -ks/Ms,-bs/Ms,0,bs/Ms;
@@ -195,14 +227,14 @@ L_X = inv(s*eye(4)-A)*l;
 tf_a = s*L_X(2);
 tf_r = L_X(1);
 tf_t = L_X(3);
-% 
-% tf_a_2 = s*L_X(2);
-% tf_r_2 = L_X(1);
-% tf_t_2 = L_X(3);
-%  
-% tf_a_3 = s*L_X(2);
-% tf_r_3 = L_X(1);
-% tf_t_3 = L_X(3);
+
+tf_a_2 = s*L_X(2);
+tf_r_2 = L_X(1);
+tf_t_2 = L_X(3);
+
+tf_a_3 = s*L_X(2);
+tf_r_3 = L_X(1);
+tf_t_3 = L_X(3);
 
 %% Finding natural frequencies
 
@@ -223,32 +255,49 @@ w1_range = omega_n(1)/20:omega_n(2)*20;
 
 figure(1);
 bode(tf_a, tf_r, tf_t, w1_range);
+[Gm(1),Pm(1),Wcg(1),Wcp(1)] = margin(tf_a);
+[Gm(2),Pm(2),Wcg(2),Wcp(2)] = margin(tf_r);
+[Gm(3),Pm(3),Wcg(3),Wcp(3)] = margin(tf_t);
+
 legend('Acceleration tf','Rattle space tf','Tyre deflection tf');
-saveas(gcf,'plots/Part2b_bode.png');
+% saveas(gcf,'plots/Part2b_bode.png');
 %% bode plot part 2c,d,e
 figure(1);
-bode(tf_a, tf_a_2, tf_a_3, w1_range);
-title('Effect of suspension damping on Acceleration')
+subplot(1,3,1);
+bode(tf_a, tf_a_2, tf_a_3);grid on;
+title('Effect of tyre stiffness on Acceleration');
 legend('bs=900','bs=600','bs=1200');
-saveas(gcf,'plots/Part2d_bode_acc.png');
+% saveas(gcf,'plots/Part2d_bode_acc.png');
 
-figure(2);
-bode(tf_r, tf_r_2, tf_r_3, w1_range);
-title('Effect of suspension damping on Rattle space')
-legend('bs=900','bs=600','bs=1200');
-saveas(gcf,'plots/Part2d_bode_rattle.png');
+[Gm(1,1),Pm(1,1),Wcg(1,1),Wcp(1,1)] = margin(tf_a);
+[Gm(1,2),Pm(1,2),Wcg(1,2),Wcp(1,2)] = margin(tf_a_2);
+[Gm(1,3),Pm(1,3),Wcg(1,3),Wcp(1,3)] = margin(tf_a_3);
 
-figure(3);
-bode(tf_t, tf_t_2, tf_t_3, w1_range);
-title('Effect of suspension damping on Tyre deflection')
+subplot(1,3,2);
+bode(tf_r, tf_r_2, tf_r_3);grid on;
+title('Effect of tyre stiffness on Rattle space');
 legend('bs=900','bs=600','bs=1200');
-saveas(gcf,'plots/Part2d_bode_tyre.png');
+% saveas(gcf,'plots/Part2d_bode_rattle.png');
+
+[Gm(2,1),Pm(2,1),Wcg(2,1),Wcp(2,1)] = margin(tf_r);
+[Gm(2,2),Pm(2,2),Wcg(2,2),Wcp(2,2)] = margin(tf_r_2);
+[Gm(2,3),Pm(2,3),Wcg(2,3),Wcp(2,3)] = margin(tf_r_3);
+
+subplot(1,3,3);
+bode(tf_t, tf_t_2, tf_t_3);grid on;
+title('Effect of tyre stiffness on Tyre deflection');
+legend('bs=900','bs=600','bs=1200');
+% saveas(gcf,'plots/Part2d_bode_tyre.png');
+
+[Gm(3,1),Pm(3,1),Wcg(3,1),Wcp(3,1)] = margin(tf_t);
+[Gm(3,2),Pm(3,2),Wcg(3,2),Wcp(3,2)] = margin(tf_t_2);
+[Gm(3,3),Pm(3,3),Wcg(3,3),Wcp(3,3)] = margin(tf_t_3);
 
 %% LQR controller derivation and tuning
 
-%rho = [0.2 0.1 0.2 0.1];
- rho = [20000 100 20000 100];
-% rho = [200 10 200 10];
+%  rho = [0.2 0.1 0.2 0.1];
+rho = [20000 100 20000 100];
+%rho = [200 10 200 10];
 
 Q = [rho(1)+(ks/Ms)^2  bs*ks/Ms^2    0   -bs*ks/Ms^2;
      bs*ks/Ms^2     rho(2)+(bs/Ms)^2 0   -(bs/Ms)^2;
@@ -260,7 +309,7 @@ R = 1/Ms^2;
 
 [K,S,e] = lqr(A,B,Q,R,N);
 
-%% finding closed loop tf
+% finding closed loop tf
 A_cl = A-B*K;
 L_X_cl = inv(s*eye(4)-A_cl)*l;
 
@@ -269,22 +318,31 @@ tf_r_cl = L_X_cl(1);
 tf_t_cl = L_X_cl(3);
 
 figure(1);
-bode(tf_a, tf_a_cl);
+subplot(1,3,1);
+bode(tf_a, tf_a_cl);grid on;
 title('Bode plot for Acceleration transfer function'); 
 legend('open loop','closed loop');
-saveas(gcf,'plots/Part3biii_bode_acc.png');
+% saveas(gcf,'plots/Part3biii_bode_acc.png');
+[Gm(1,1),Pm(1,1),Wcg(1,1),Wcp(1,1)] = margin(tf_a);
+[Gm(1,2),Pm(1,2),Wcg(1,2),Wcp(1,2)] = margin(tf_a_cl);
 
-figure(2);
-bode(tf_r, tf_r_cl);
+
+subplot(1,3,2);
+bode(tf_r, tf_r_cl);grid on;
 title('Bode plot for Rattle Space transfer function');
 legend('open loop','closed loop');
-saveas(gcf,'plots/Part3biii_bode_rattle.png');
+% saveas(gcf,'plots/Part3biii_bode_rattle.png');
+[Gm(2,1),Pm(2,1),Wcg(2,1),Wcp(2,1)] = margin(tf_r);
+[Gm(2,2),Pm(2,2),Wcg(2,2),Wcp(2,2)] = margin(tf_r_cl);
 
-figure(3);
-bode(tf_t, tf_t_cl);
+
+subplot(1,3,3);
+bode(tf_t, tf_t_cl);grid on;
 title('Bode plot for Tyre Deflection transfer function');
 legend('open loop','closed loop');
-saveas(gcf,'plots/Part3biii_bode_tyre.png');
+% saveas(gcf,'plots/Part3biii_bode_tyre.png');
 
+[Gm(3,1),Pm(3,1),Wcg(3,1),Wcp(3,1)] = margin(tf_t);
+[Gm(3,2),Pm(3,2),Wcg(3,2),Wcp(3,2)] = margin(tf_t_cl);
 ##### SOURCE END #####
 --></body></html>

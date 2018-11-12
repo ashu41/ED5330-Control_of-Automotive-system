@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>half_car_model</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-11-12"><meta name="DC.source" content="half_car_model.m"><style type="text/css">
+      --><title>half_car_model</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-11-13"><meta name="DC.source" content="half_car_model.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -97,6 +97,7 @@ R = diag([rho(5:6)]);
 
 [K,S,e] = lqr(A,B,Q,R,N);
 </pre><h2>Finding tf for sprung and unsprung mass<a name="3"></a></h2><pre class="codeinput">A_cl = A-B*K;
+s=tf(<span class="string">'s'</span>);
 
 L_X = inv(s*eye(4)-A)*l;
 L_X_cl = inv(s*eye(4)-A_cl)*l;
@@ -106,18 +107,81 @@ tfu = L_X(3);
 
 tfs_cl = L_X_cl(1);
 tfu_cl = L_X_cl(3);
-</pre><pre class="codeoutput error">Undefined function or variable 's'.
+</pre><h2>Input Simulation<a name="4"></a></h2><pre class="codeinput">tsim = (0:0.01:20);
 
-Error in half_car_model (line 38)
-L_X = inv(s*eye(4)-A)*l;
-</pre><h2>Input Simulation<a name="4"></a></h2><pre class="codeinput">tsim = (0:0.01:10);
+impulse = 9.81*((tsim-3)==0);
+step = 9.81*(heaviside(tsim-2)-heaviside(tsim-5));
 
-impulse = 5*(tsim==0);
-step = 5*heaviside(tsim-5);
+<span class="comment">% figure(1);</span>
+<span class="comment">% subplot(1,2,1);</span>
+<span class="comment">% plot(tsim,impulse);</span>
+<span class="comment">% title('Impulse of magnitude 1g');</span>
+<span class="comment">% subplot(1,2,2);</span>
+<span class="comment">% plot(tsim,step);</span>
+<span class="comment">% title('Retungular input of magnitude 1g');</span>
 
-imp_res = lsim(closed_loop,impulse,tsim);
-step_res = lsim(closed_loop,step,tsim);
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+imp_res = lsim(tfs,impulse,tsim);
+imp_res_cl = lsim(tfs_cl,impulse,tsim);
+imp_resu = lsim(tfu,impulse,tsim);
+imp_resu_cl = lsim(tfu_cl,impulse,tsim);
+
+
+step_res = lsim(tfs,step,tsim);
+step_res_cl = lsim(tfs_cl,step,tsim);
+step_resu = lsim(tfu,step,tsim);
+step_resu_cl = lsim(tfu_cl,step,tsim);
+
+
+figure(1);
+subplot(1,2,1);
+plot(tsim,imp_resu,tsim,imp_resu_cl);
+title(<span class="string">'Impulse input response for unsprung mass'</span>);
+legend(<span class="string">'Passive suspension'</span>,<span class="string">'Active suspension'</span>);
+saveas(gcf,<span class="string">'plots/roll_imp_unsprung.png'</span>);
+
+subplot(1,2,2);
+plot(tsim,imp_res,tsim,imp_res_cl);
+title(<span class="string">'Impulse input response for sprung mass'</span>)
+legend(<span class="string">'Passive suspension'</span>,<span class="string">'Active suspension'</span>);
+<span class="comment">% saveas(gcf,'plots/roll_imp_sprung.png');</span>
+
+figure(3);
+subplot(1,2,1);
+plot(tsim,step_res,tsim,step_res_cl);
+title(<span class="string">'Rectangular input response for sprung mass'</span>);
+legend(<span class="string">'Passive suspension'</span>,<span class="string">'Active suspension'</span>);
+<span class="comment">% saveas(gcf,'plots/roll_rect_sprung.png');</span>
+
+subplot(1,2,2);
+plot(tsim,step_resu,tsim,step_resu_cl);
+title(<span class="string">'Rectangular input response for unsprung mass'</span>);
+legend(<span class="string">'Passive suspension'</span>,<span class="string">'Active suspension'</span>);
+<span class="comment">% saveas(gcf,'plots/roll_rect_unsprung.png');</span>
+</pre><img vspace="5" hspace="5" src="half_car_model_01.png" alt=""> <img vspace="5" hspace="5" src="half_car_model_02.png" alt=""> <pre class="codeinput">sinus1 = 9.81*sin(tsim);
+sinus2 = 9.81*sin(2*tsim);
+
+<span class="comment">% plot(tsim,sinus);</span>
+sin_res = lsim(tfs,sinus1,tsim);
+sin_res_cl = lsim(tfs_cl,sinus1,tsim);
+sin_resu = lsim(tfu,sinus1,tsim);
+sin_resu_cl = lsim(tfu_cl,sinus1,tsim);
+
+sin2_res = lsim(tfs,sinus2,tsim);
+sin2_res_cl = lsim(tfs_cl,sinus2,tsim);
+sin2_resu = lsim(tfu,sinus2,tsim);
+sin2_resu_cl = lsim(tfu_cl,sinus2,tsim);
+
+figure(2);
+subplot(2,1,1);
+plot(tsim,sin_res,tsim,sin_res_cl,tsim,sin2_res,tsim,sin2_res_cl);
+title(<span class="string">'Sinusoidal input response for sprung mass'</span>);
+legend(<span class="string">'Passive suspension for 1 hz'</span>,<span class="string">'Active suspension 1 hz'</span>,<span class="string">'Passive suspension for 0.5 hz'</span>,<span class="string">'Active suspension 0.5 hz'</span>);
+
+subplot(2,1,2);
+plot(tsim,sin_resu,tsim,sin_resu_cl,tsim,sin2_resu,tsim,sin2_resu_cl);
+title(<span class="string">'Sinusoidal input response for unsprung mass'</span>);
+legend(<span class="string">'Passive suspension for 1 hz'</span>,<span class="string">'Active suspension 1 hz'</span>,<span class="string">'Passive suspension for 0.5 hz'</span>,<span class="string">'Active suspension 0.5 hz'</span>);
+</pre><img vspace="5" hspace="5" src="half_car_model_03.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 clear all
 %initialising variables 
@@ -155,6 +219,7 @@ R = diag([rho(5:6)]);
 
 %% Finding tf for sprung and unsprung mass
 A_cl = A-B*K;
+s=tf('s');
 
 L_X = inv(s*eye(4)-A)*l;
 L_X_cl = inv(s*eye(4)-A_cl)*l;
@@ -166,13 +231,82 @@ tfs_cl = L_X_cl(1);
 tfu_cl = L_X_cl(3);
 
 %% Input Simulation
-tsim = (0:0.01:10);
+tsim = (0:0.01:20);
 
-impulse = 5*(tsim==0);
-step = 5*heaviside(tsim-5);
+impulse = 9.81*((tsim-3)==0);
+step = 9.81*(heaviside(tsim-2)-heaviside(tsim-5));
 
-imp_res = lsim(closed_loop,impulse,tsim);
-step_res = lsim(closed_loop,step,tsim);
+% figure(1);
+% subplot(1,2,1);
+% plot(tsim,impulse);
+% title('Impulse of magnitude 1g');
+% subplot(1,2,2);
+% plot(tsim,step);
+% title('Retungular input of magnitude 1g');
+
+imp_res = lsim(tfs,impulse,tsim);
+imp_res_cl = lsim(tfs_cl,impulse,tsim);
+imp_resu = lsim(tfu,impulse,tsim);
+imp_resu_cl = lsim(tfu_cl,impulse,tsim);
+
+
+step_res = lsim(tfs,step,tsim);
+step_res_cl = lsim(tfs_cl,step,tsim);
+step_resu = lsim(tfu,step,tsim);
+step_resu_cl = lsim(tfu_cl,step,tsim);
+
+
+figure(1);
+subplot(1,2,1);
+plot(tsim,imp_resu,tsim,imp_resu_cl);
+title('Impulse input response for unsprung mass');
+legend('Passive suspension','Active suspension');
+saveas(gcf,'plots/roll_imp_unsprung.png');
+
+subplot(1,2,2);
+plot(tsim,imp_res,tsim,imp_res_cl);
+title('Impulse input response for sprung mass')
+legend('Passive suspension','Active suspension');
+% saveas(gcf,'plots/roll_imp_sprung.png');
+
+figure(3);
+subplot(1,2,1);
+plot(tsim,step_res,tsim,step_res_cl);
+title('Rectangular input response for sprung mass');
+legend('Passive suspension','Active suspension');
+% saveas(gcf,'plots/roll_rect_sprung.png');
+
+subplot(1,2,2);
+plot(tsim,step_resu,tsim,step_resu_cl);
+title('Rectangular input response for unsprung mass');
+legend('Passive suspension','Active suspension');
+% saveas(gcf,'plots/roll_rect_unsprung.png');
+
+%%
+sinus1 = 9.81*sin(tsim);
+sinus2 = 9.81*sin(2*tsim);
+
+% plot(tsim,sinus);
+sin_res = lsim(tfs,sinus1,tsim);
+sin_res_cl = lsim(tfs_cl,sinus1,tsim);
+sin_resu = lsim(tfu,sinus1,tsim);
+sin_resu_cl = lsim(tfu_cl,sinus1,tsim);
+
+sin2_res = lsim(tfs,sinus2,tsim);
+sin2_res_cl = lsim(tfs_cl,sinus2,tsim);
+sin2_resu = lsim(tfu,sinus2,tsim);
+sin2_resu_cl = lsim(tfu_cl,sinus2,tsim);
+
+figure(2);
+subplot(2,1,1);
+plot(tsim,sin_res,tsim,sin_res_cl,tsim,sin2_res,tsim,sin2_res_cl);
+title('Sinusoidal input response for sprung mass');
+legend('Passive suspension for 1 hz','Active suspension 1 hz','Passive suspension for 0.5 hz','Active suspension 0.5 hz');
+
+subplot(2,1,2);
+plot(tsim,sin_resu,tsim,sin_resu_cl,tsim,sin2_resu,tsim,sin2_resu_cl);
+title('Sinusoidal input response for unsprung mass');
+legend('Passive suspension for 1 hz','Active suspension 1 hz','Passive suspension for 0.5 hz','Active suspension 0.5 hz');
 
 ##### SOURCE END #####
 --></body></html>

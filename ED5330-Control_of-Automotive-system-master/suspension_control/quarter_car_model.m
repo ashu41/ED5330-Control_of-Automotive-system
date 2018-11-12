@@ -23,13 +23,13 @@ tf_a = s*L_X(2);
 tf_r = L_X(1);
 tf_t = L_X(3);
 
-% tf_a_2 = s*L_X(2);
-% tf_r_2 = L_X(1);
-% tf_t_2 = L_X(3);
-% 
-% tf_a_3 = s*L_X(2);
-% tf_r_3 = L_X(1);
-% tf_t_3 = L_X(3);
+tf_a_2 = s*L_X(2);
+tf_r_2 = L_X(1);
+tf_t_2 = L_X(3);
+
+tf_a_3 = s*L_X(2);
+tf_r_3 = L_X(1);
+tf_t_3 = L_X(3);
 
 %% Finding natural frequencies
 
