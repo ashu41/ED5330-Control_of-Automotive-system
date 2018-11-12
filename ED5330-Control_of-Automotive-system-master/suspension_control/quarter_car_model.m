@@ -54,7 +54,6 @@ legend('Acceleration tf','Rattle space tf','Tyre deflection tf');
 saveas(gcf,'plots/Part2b_bode.png');
 %% bode plot part 2c,d,e
 figure(1);
-subplot
 bode(tf_a, tf_a_2, tf_a_3, w1_range);
 title('Effect of suspension damping on Acceleration')
 legend('bs=900','bs=600','bs=1200');
